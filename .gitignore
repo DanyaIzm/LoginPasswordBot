@@ -8,3 +8,6 @@ venv
 # Config and settings
 config.py
 
+# Database file
+database.db
+
