@@ -70,3 +70,24 @@ class DatabaseController:
             return new_data
         else:
             return None
+
+    def delete_account(self, user_id, service: str, login: str = None) -> int:
+        if login:
+            select_query = f"SELECT * FROM Accounts WHERE user = '{int(user_id)}' AND service = '{service}' AND login = '{login}'"
+            delete_query = f"DELETE FROM Accounts WHERE user = '{int(user_id)}' AND service = '{service}' AND login = '{login}'"
+        else:
+            select_query = f"SELECT * FROM Accounts WHERE user = '{int(user_id)}' AND service = '{service}'"
+            delete_query = f"DELETE FROM Accounts WHERE user = '{int(user_id)}' AND service = '{service}'"
+
+        amount_of_records = 0
+
+        try:
+            self.cursor.execute(select_query)
+            amount_of_records = len(self.cursor.fetchall())
+        except Exception as e:
+            pass
+
+        self.cursor.execute(delete_query)
+        self.connection.commit()
+
+        return amount_of_records
