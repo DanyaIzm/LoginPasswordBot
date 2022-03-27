@@ -5,8 +5,9 @@ from aiogram import executor
 from bot import dp, database_controller
 
 # importing all needed stuff
-import handlers
 import middleware
+import filters
+import handlers
 
 logging.basicConfig(level=logging.INFO)
 

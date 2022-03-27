@@ -26,7 +26,7 @@ class DatabaseController:
         self.connection.commit()
 
     def is_user_exists(self, user_id) -> bool:
-        query = f"SELECT * FROM Users WHERE id = {str(user_id)}"
+        query = f"SELECT * FROM Users WHERE id = {int(user_id)}"
         self.cursor.execute(query)
 
         if self.cursor.fetchone():
@@ -39,3 +39,34 @@ class DatabaseController:
                 f"VALUES({int(data['id'])}, '{data['first_name']}', '{data['last_name']}', '{data['username']}', 0)"
         self.cursor.execute(query)
         self.connection.commit()
+
+    def get_status(self, user_id) -> bool:
+        query = f"SELECT status FROM Users WHERE id = {int(user_id)}"
+        self.cursor.execute(query)
+
+        return bool(self.cursor.fetchone()[0])
+
+    def get_from_accounts(self, content: str, user_id, service: str = None):
+        query = f"SELECT service, login, password FROM Accounts WHERE user = {int(user_id)}"
+        self.cursor.execute(query)
+
+        fetch = self.cursor.fetchall()
+        data = []
+
+        for item in fetch:
+            data.append({
+                'service': item[0],
+                'login': item[1],
+                'password': item[2]
+            })
+
+        if content == "everything":
+            return data
+        elif content == "service":
+            new_data = []
+            for item in data:
+                if item['service'] == service:
+                    new_data.append(item)
+            return new_data
+        else:
+            return None
