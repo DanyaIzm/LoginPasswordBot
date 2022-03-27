@@ -1,13 +1,13 @@
 import logging
-from aiogram import Bot, Dispatcher, executor
+from aiogram import executor
 
-from config.config import BOT_TOKEN
+# importing dispatcher from the bots file
+from bot import dp
+
+# importing all needed stuff
+import handlers
 
 logging.basicConfig(level=logging.INFO)
-
-# Creating a bot
-bot = Bot(token=BOT_TOKEN)
-dp = Dispatcher(bot)
 
 if __name__ == '__main__':
     executor.start_polling(dispatcher=dp, skip_updates=False)

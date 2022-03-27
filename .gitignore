@@ -1,8 +1,10 @@
 # PyCharm
 .idea
+__pycache__
 
 # Virtual Envirionment
 venv
 
 # Config and settings
 config.py
+
