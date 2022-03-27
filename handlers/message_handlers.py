@@ -9,6 +9,7 @@ from filters.permission_filter import HasPermission
 @dp.message_handler(HasPermission(), text="Посмотреть все логины и пароли")
 async def get_accounts_message(message: types.Message):
     data = database_controller.get_from_accounts('everything', message.from_user.id)
+
     if not data:
         await dp.bot.send_message(chat_id=message.chat.id, text="Вы ещё не добавили аккаунты сюда")
         return
