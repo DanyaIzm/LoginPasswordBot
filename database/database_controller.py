@@ -14,10 +14,10 @@ class DatabaseController:
 
     # Remove slq injection
     def verify(self, data: List[str]):
-        for item in data:
-            item.replace(";", "")
-            item.replace("--", "")
-            item.replace(")", "")
+        for i in range(len(data)):
+            data[i] = data[i].replace(";", "")
+            data[i] = data[i].replace("--", "")
+            data[i] = data[i].replace(")", "")
 
     def _create_table_users(self):
         query = "CREATE TABLE IF NOT EXISTS " \
