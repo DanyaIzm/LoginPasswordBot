@@ -12,14 +12,20 @@ class DatabaseController:
         self._create_table_users()
         self._create_table_accounts()
 
+    # If database accidentally closes the connection
+    def check_connection(self):
+        self.connection.commit()
+
+    def reconnect(self):
+        self.connection = connect(database="database.db")
+        self.cursor = self.connection.cursor()
+
     # Remove slq injection
     def verify(self, data: List[str]):
         for i in range(len(data)):
             data[i] = data[i].replace(";", "")
             data[i] = data[i].replace("--", "")
             data[i] = data[i].replace(")", "")
-
-    # TODO: reconnect to database
 
     def _create_table_users(self):
         query = "CREATE TABLE IF NOT EXISTS " \

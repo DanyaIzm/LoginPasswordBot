@@ -6,6 +6,11 @@ from bot import database_controller, dp
 
 class UserSaverMiddleware(BaseMiddleware):
     async def on_pre_process_update(self, update: types.Update, data: dict):
+        try:
+            database_controller.check_connection()
+        except:
+            database_controller.reconnect()
+
         # if update has a message, not a callback query
         if not update.message:
             return
