@@ -91,3 +91,19 @@ class DatabaseController:
         self.connection.commit()
 
         return amount_of_records
+
+    def get_accounts_amount(self, user_id, service: str) -> int:
+        query = f"SELECT * FROM Accounts WHERE `user` = '{int(user_id)}' AND `service` = '{service}'"
+        self.cursor.execute(query)
+        return len(self.cursor.fetchall())
+
+    def change_password(self, user_id, new_password: str, service: str, login: str = None):
+        if login:
+            query = f"UPDATE Accounts SET password = '{new_password}' " \
+                           f"WHERE user = '{int(user_id)}' AND service = '{service}' AND login = '{login}'"
+        else:
+            query = f"UPDATE Accounts SET password = '{new_password}' " \
+                           f"WHERE user = '{int(user_id)}' AND service = '{service}'"
+
+        self.cursor.execute(query)
+        self.connection.commit()
