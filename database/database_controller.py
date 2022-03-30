@@ -1,4 +1,5 @@
 from sqlite3 import connect
+from typing import List
 
 
 class DatabaseController:
@@ -10,6 +11,13 @@ class DatabaseController:
         # Create tables
         self._create_table_users()
         self._create_table_accounts()
+
+    # Remove slq injection
+    def verify(self, data: List[str]):
+        for item in data:
+            item.replace(";", "")
+            item.replace("--", "")
+            item.replace(")", "")
 
     def _create_table_users(self):
         query = "CREATE TABLE IF NOT EXISTS " \
@@ -72,6 +80,8 @@ class DatabaseController:
             return None
 
     def delete_account(self, user_id, service: str, login: str = None) -> int:
+        self.verify([service, login])
+
         if login:
             select_query = f"SELECT * FROM Accounts WHERE user = '{int(user_id)}' AND service = '{service}' AND login = '{login}'"
             delete_query = f"DELETE FROM Accounts WHERE user = '{int(user_id)}' AND service = '{service}' AND login = '{login}'"
@@ -93,11 +103,15 @@ class DatabaseController:
         return amount_of_records
 
     def get_accounts_amount(self, user_id, service: str) -> int:
+        self.verify([service])
+
         query = f"SELECT * FROM Accounts WHERE `user` = '{int(user_id)}' AND `service` = '{service}'"
         self.cursor.execute(query)
         return len(self.cursor.fetchall())
 
     def change_password(self, user_id, new_password: str, service: str, login: str = None):
+        self.verify([new_password, service, login])
+
         if login:
             query = f"UPDATE Accounts SET password = '{new_password}' " \
                            f"WHERE user = '{int(user_id)}' AND service = '{service}' AND login = '{login}'"
