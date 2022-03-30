@@ -92,7 +92,7 @@ async def get_login_and_service_to_change_password_message(message: types.Messag
         if len(text) >= 2:
             login = text[1]
 
-        amount_of_records = database_controller.get_accounts_amount(message.from_user.id, service)
+        amount_of_records = database_controller.get_accounts_amount(message.from_user.id, service, login)
 
         if amount_of_records > 1 and not login:
             await dp.bot.send_message(chat_id=message.from_user.id, text="Пожалуйста, пришлите логин тоже.\n"
@@ -130,5 +130,46 @@ async def get_new_password_and_change_it_message(message: types.Message, state: 
 
     except Exception as e:
         await dp.bot.send_message(chat_id=message.from_user.id, text="Не удалось изменить пароль\n:__(")
+    finally:
+        return await state.finish()
+
+
+# Add new account
+@dp.message_handler(HasPermission(), text="Добавить новый аккаунт")
+async def add_new_account_message(message: types.Message):
+    await AddNewAccountStatesGroup.get_service_name.set()
+    await message.reply("Отлично. Введите название сервиса")
+
+
+@dp.message_handler(HasPermission(), state=AddNewAccountStatesGroup.get_service_name)
+async def add_new_account_get_service_message(message: types.Message, state: FSMContext):
+    await state.set_data({
+        "service": message.text
+    })
+    await message.reply("Теперь введите логин")
+    return await AddNewAccountStatesGroup.get_login.set()
+
+
+@dp.message_handler(HasPermission(), state=AddNewAccountStatesGroup.get_login)
+async def add_new_account_get_login_message(message: types.Message, state: FSMContext):
+    await state.update_data({
+        "login": message.text
+    })
+    await message.reply("Теперь введите пароль c:")
+    return await AddNewAccountStatesGroup.get_password.set()
+
+
+@dp.message_handler(HasPermission(), state=AddNewAccountStatesGroup.get_password)
+async def add_new_account_get_password_message(message: types.Message, state: FSMContext):
+    try:
+        await state.update_data({
+            "password": message.text
+        })
+        data = await state.get_data()
+        database_controller.add_new_account(message.from_user.id, data["service"], data["login"], data["password"])
+        await dp.bot.send_message(chat_id=message.from_user.id, text="Успешно добавил ваш новый аккаунт, ура :>")
+        return await state.finish()
+    except Exception as e:
+        await dp.bot.send_message(chat_id=message.from_user.id, text="Не удалось добавить аккаунт\n:__(")
     finally:
         return await state.finish()

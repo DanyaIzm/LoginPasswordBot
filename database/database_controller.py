@@ -19,6 +19,8 @@ class DatabaseController:
             data[i] = data[i].replace("--", "")
             data[i] = data[i].replace(")", "")
 
+    # TODO: reconnect to database
+
     def _create_table_users(self):
         query = "CREATE TABLE IF NOT EXISTS " \
                 "Users(id NUMBER, first_name TEXT, last_name TEXT, username TEXT, status BOOL, PRIMARY KEY(id))"
@@ -102,10 +104,13 @@ class DatabaseController:
 
         return amount_of_records
 
-    def get_accounts_amount(self, user_id, service: str) -> int:
+    def get_accounts_amount(self, user_id, service: str, login: str = None) -> int:
         self.verify([service])
 
-        query = f"SELECT * FROM Accounts WHERE `user` = '{int(user_id)}' AND `service` = '{service}'"
+        if login:
+            query = f"SELECT * FROM Accounts WHERE `user` = '{int(user_id)}' AND `service` = '{service}' AND `login` = '{login}'"
+        else:
+            query = f"SELECT * FROM Accounts WHERE `user` = '{int(user_id)}' AND `service` = '{service}'"
         self.cursor.execute(query)
         return len(self.cursor.fetchall())
 
@@ -119,5 +124,13 @@ class DatabaseController:
             query = f"UPDATE Accounts SET password = '{new_password}' " \
                            f"WHERE user = '{int(user_id)}' AND service = '{service}'"
 
+        self.cursor.execute(query)
+        self.connection.commit()
+
+    def add_new_account(self, user_id, service: str, login: str, password: str):
+        self.verify([service, login, password])
+
+        query = f"INSERT INTO Accounts(user, service, login, password) " \
+                f"VALUES('{user_id}', '{service}', '{login}', '{password}')"
         self.cursor.execute(query)
         self.connection.commit()
